@@ -1,0 +1,482 @@
+{
+  "scanned_at": "2026-10-31T15:34:44.207283+00:00",
+  "asset_count": 12,
+  "assets": [
+    {
+      "asset_type": "s3_bucket",
+      "identifier": "2021-product-launch-static-assets",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:41+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "responsive",
+      "probe_detail": "Static website hosting enabled; ACL grants access to AllUsers",
+      "publicly_accessible": true,
+      "raw": {
+        "website_enabled": true
+      },
+      "evidence": [
+        {
+          "source": "s3:list_buckets",
+          "detail": "Created 2026-10-31 15:34:41+00:00",
+          "observed_at": "2026-10-31T15:34:44.052424+00:00"
+        },
+        {
+          "source": "s3:public-check",
+          "detail": "ACL grants access to AllUsers",
+          "observed_at": "2026-10-31T15:34:44.052427+00:00"
+        },
+        {
+          "source": "s3:website",
+          "detail": "Static website hosting is enabled",
+          "observed_at": "2026-10-31T15:34:44.052430+00:00"
+        },
+        {
+          "source": "s3:object-sample",
+          "detail": "No objects found in sample (bucket may be empty)",
+          "observed_at": "2026-10-31T15:34:44.052431+00:00"
+        }
+      ],
+      "decay_score": 75.0,
+      "decay_band": "CRITICAL",
+      "risk_factors": [
+        "Actively responds to external probes (+30)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "41b9b9dabb823f31"
+    },
+    {
+      "asset_type": "s3_bucket",
+      "identifier": "hackathon-demo-uploads-bucket",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:41+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "responsive",
+      "probe_detail": "ACL grants access to AllUsers",
+      "publicly_accessible": true,
+      "raw": {
+        "website_enabled": false
+      },
+      "evidence": [
+        {
+          "source": "s3:list_buckets",
+          "detail": "Created 2026-10-31 15:34:41+00:00",
+          "observed_at": "2026-10-31T15:34:44.075283+00:00"
+        },
+        {
+          "source": "s3:public-check",
+          "detail": "ACL grants access to AllUsers",
+          "observed_at": "2026-10-31T15:34:44.075286+00:00"
+        },
+        {
+          "source": "s3:object-sample",
+          "detail": "No objects found in sample (bucket may be empty)",
+          "observed_at": "2026-10-31T15:34:44.075288+00:00"
+        }
+      ],
+      "decay_score": 75.0,
+      "decay_band": "CRITICAL",
+      "risk_factors": [
+        "Actively responds to external probes (+30)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "d0b9ed77475b13d8"
+    },
+    {
+      "asset_type": "s3_bucket",
+      "identifier": "2024-staging-leftover-bucket",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:43+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "responsive",
+      "probe_detail": "ACL grants access to AllUsers",
+      "publicly_accessible": true,
+      "raw": {
+        "website_enabled": false
+      },
+      "evidence": [
+        {
+          "source": "s3:list_buckets",
+          "detail": "Created 2026-10-31 15:34:43+00:00",
+          "observed_at": "2026-10-31T15:34:44.158026+00:00"
+        },
+        {
+          "source": "s3:public-check",
+          "detail": "ACL grants access to AllUsers",
+          "observed_at": "2026-10-31T15:34:44.158030+00:00"
+        },
+        {
+          "source": "s3:object-sample",
+          "detail": "No objects found in sample (bucket may be empty)",
+          "observed_at": "2026-10-31T15:34:44.158032+00:00"
+        }
+      ],
+      "decay_score": 75.0,
+      "decay_band": "CRITICAL",
+      "risk_factors": [
+        "Actively responds to external probes (+30)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "fd285a44c060cc09"
+    },
+    {
+      "asset_type": "elastic_ip",
+      "identifier": "127.21.85.159",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": null,
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unreachable",
+      "probe_detail": "Allocated but NOT associated with any resource - pure cost/stale-DNS risk",
+      "publicly_accessible": true,
+      "raw": {
+        "allocation_id": "eipalloc-836faa334f6aa9751"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_addresses",
+          "detail": "Unassociated Elastic IP",
+          "observed_at": "2026-10-31T15:34:44.198008+00:00"
+        }
+      ],
+      "decay_score": 50.0,
+      "decay_band": "HIGH",
+      "risk_factors": [
+        "Does not currently resolve/respond (+5)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "afda9f0934a904ed"
+    },
+    {
+      "asset_type": "elastic_ip",
+      "identifier": "127.44.214.245",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": null,
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unreachable",
+      "probe_detail": "Allocated but NOT associated with any resource - pure cost/stale-DNS risk",
+      "publicly_accessible": true,
+      "raw": {
+        "allocation_id": "eipalloc-5ec5c043ee7c8dbec"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_addresses",
+          "detail": "Unassociated Elastic IP",
+          "observed_at": "2026-10-31T15:34:44.198021+00:00"
+        }
+      ],
+      "decay_score": 50.0,
+      "decay_band": "HIGH",
+      "risk_factors": [
+        "Does not currently resolve/respond (+5)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "439f434c6fe1a6c2"
+    },
+    {
+      "asset_type": "elastic_ip",
+      "identifier": "127.90.197.10",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": null,
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unreachable",
+      "probe_detail": "Allocated but NOT associated with any resource - pure cost/stale-DNS risk",
+      "publicly_accessible": true,
+      "raw": {
+        "allocation_id": "eipalloc-f7dadc74a54c3be51"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_addresses",
+          "detail": "Unassociated Elastic IP",
+          "observed_at": "2026-10-31T15:34:44.198026+00:00"
+        }
+      ],
+      "decay_score": 50.0,
+      "decay_band": "HIGH",
+      "risk_factors": [
+        "Does not currently resolve/respond (+5)",
+        "Publicly accessible (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "0c8d18ed52f06bfe"
+    },
+    {
+      "asset_type": "s3_bucket",
+      "identifier": "internal-backups-untagged",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:41+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unknown",
+      "probe_detail": "No public access detected",
+      "publicly_accessible": false,
+      "raw": {
+        "website_enabled": false
+      },
+      "evidence": [
+        {
+          "source": "s3:list_buckets",
+          "detail": "Created 2026-10-31 15:34:41+00:00",
+          "observed_at": "2026-10-31T15:34:44.132330+00:00"
+        },
+        {
+          "source": "s3:public-check",
+          "detail": "No public access detected",
+          "observed_at": "2026-10-31T15:34:44.132334+00:00"
+        },
+        {
+          "source": "s3:object-sample",
+          "detail": "No objects found in sample (bucket may be empty)",
+          "observed_at": "2026-10-31T15:34:44.132335+00:00"
+        }
+      ],
+      "decay_score": 45.0,
+      "decay_band": "MEDIUM",
+      "risk_factors": [
+        "Reachability unknown/untested (+15)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "44032160896f86ca"
+    },
+    {
+      "asset_type": "ec2_instance",
+      "identifier": "i-e260ab22702c717c0",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:43+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unreachable",
+      "probe_detail": "State: stopped; Stopped (not terminated) - classic orphan pattern",
+      "publicly_accessible": false,
+      "raw": {
+        "instance_type": "t2.micro",
+        "state": "stopped"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_instances",
+          "detail": "State: stopped; Stopped (not terminated) - classic orphan pattern",
+          "observed_at": "2026-10-31T15:34:44.190516+00:00"
+        }
+      ],
+      "decay_score": 35.0,
+      "decay_band": "MEDIUM",
+      "risk_factors": [
+        "Does not currently resolve/respond (+5)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "25393250d621acf8"
+    },
+    {
+      "asset_type": "ec2_instance",
+      "identifier": "i-b2799530373d11005",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:43+00:00",
+      "last_activity_at": "2026-10-31T15:34:43+00:00",
+      "last_cost_at": null,
+      "owner_tag": "platform-team",
+      "project_tag": "api-gateway",
+      "has_termination_protection": false,
+      "tags": {
+        "Owner": "platform-team",
+        "Project": "api-gateway"
+      },
+      "reachability": "responsive_error",
+      "probe_detail": "State: running; Public IP 54.214.152.62",
+      "publicly_accessible": false,
+      "raw": {
+        "instance_type": "t2.micro",
+        "state": "running"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_instances",
+          "detail": "State: running; Public IP 54.214.152.62",
+          "observed_at": "2026-10-31T15:34:44.190535+00:00"
+        }
+      ],
+      "decay_score": 35.0,
+      "decay_band": "MEDIUM",
+      "risk_factors": [
+        "Resolves/responds but errors - possible dangling reference or takeover risk (+35)"
+      ],
+      "fingerprint": "07cf7730d24e3274"
+    },
+    {
+      "asset_type": "ec2_instance",
+      "identifier": "i-3fbc51a127c82ce7f",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:43+00:00",
+      "last_activity_at": null,
+      "last_cost_at": null,
+      "owner_tag": null,
+      "project_tag": null,
+      "has_termination_protection": false,
+      "tags": {},
+      "reachability": "unreachable",
+      "probe_detail": "State: stopped; Stopped (not terminated) - classic orphan pattern",
+      "publicly_accessible": false,
+      "raw": {
+        "instance_type": "t2.micro",
+        "state": "stopped"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_instances",
+          "detail": "State: stopped; Stopped (not terminated) - classic orphan pattern",
+          "observed_at": "2026-10-31T15:34:44.190545+00:00"
+        }
+      ],
+      "decay_score": 35.0,
+      "decay_band": "MEDIUM",
+      "risk_factors": [
+        "Does not currently resolve/respond (+5)",
+        "No activity history available (+15)",
+        "No owner or project tag (+15)"
+      ],
+      "fingerprint": "b2528ca90668d875"
+    },
+    {
+      "asset_type": "ec2_instance",
+      "identifier": "i-3e5c7f9353fc2d875",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:43+00:00",
+      "last_activity_at": "2026-10-31T15:34:43+00:00",
+      "last_cost_at": null,
+      "owner_tag": "platform-team",
+      "project_tag": "api-gateway",
+      "has_termination_protection": false,
+      "tags": {
+        "Owner": "platform-team",
+        "Project": "api-gateway"
+      },
+      "reachability": "responsive_error",
+      "probe_detail": "State: running; Public IP 54.214.76.137",
+      "publicly_accessible": false,
+      "raw": {
+        "instance_type": "t2.micro",
+        "state": "running"
+      },
+      "evidence": [
+        {
+          "source": "ec2:describe_instances",
+          "detail": "State: running; Public IP 54.214.76.137",
+          "observed_at": "2026-10-31T15:34:44.190554+00:00"
+        }
+      ],
+      "decay_score": 35.0,
+      "decay_band": "MEDIUM",
+      "risk_factors": [
+        "Resolves/responds but errors - possible dangling reference or takeover risk (+35)"
+      ],
+      "fingerprint": "cb596aa6a8a0d7b0"
+    },
+    {
+      "asset_type": "s3_bucket",
+      "identifier": "prod-payments-ledger",
+      "region": "us-east-1",
+      "account_id": null,
+      "created_at": "2026-10-31T15:34:41+00:00",
+      "last_activity_at": "2026-10-31T15:34:43+00:00",
+      "last_cost_at": null,
+      "owner_tag": "payments-team",
+      "project_tag": "payments",
+      "has_termination_protection": false,
+      "tags": {
+        "Owner": "payments-team",
+        "Project": "payments"
+      },
+      "reachability": "unknown",
+      "probe_detail": "No public access detected",
+      "publicly_accessible": false,
+      "raw": {
+        "website_enabled": false
+      },
+      "evidence": [
+        {
+          "source": "s3:list_buckets",
+          "detail": "Created 2026-10-31 15:34:41+00:00",
+          "observed_at": "2026-10-31T15:34:44.103492+00:00"
+        },
+        {
+          "source": "s3:public-check",
+          "detail": "No public access detected",
+          "observed_at": "2026-10-31T15:34:44.103496+00:00"
+        },
+        {
+          "source": "s3:object-sample",
+          "detail": "Most recent sampled object modified 2026-10-31 15:34:43+00:00",
+          "observed_at": "2026-10-31T15:34:44.103502+00:00"
+        }
+      ],
+      "decay_score": 15.0,
+      "decay_band": "LOW",
+      "risk_factors": [
+        "Reachability unknown/untested (+15)"
+      ],
+      "fingerprint": "0d9da61cb2795e6f"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+[console_scripts]
+decay-tracker = decay_tracker.cli:main

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attack Surface Decay Report</title>
+<style>
+  :root {
+    --bg: #0b0f14; --panel: #121821; --text: #e6edf3; --muted: #8b949e;
+    --border: #2b3340;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg: #f6f8fa; --panel: #ffffff; --text: #1f2328; --muted: #57606a;
+      --border: #d0d7de;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text); margin: 0; padding: 24px;
+  }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+  .summary { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-top: 4px solid;
+    border-radius: 8px; padding: 16px 24px; min-width: 100px;
+  }
+  .card-count { font-size: 1.8rem; font-weight: 700; }
+  .card-label { color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
+  .controls { margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .controls select, .controls input {
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 10px; font-size: 0.85rem;
+  }
+  table { width: 100%; border-collapse: collapse; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .band { color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+  .identifier { font-family: ui-monospace, monospace; max-width: 320px; overflow-wrap: anywhere; }
+  details summary { cursor: pointer; color: var(--muted); }
+  .factors { margin: 8px 0 0 0; padding-left: 18px; font-size: 0.8rem; }
+  .probe-detail, .tags { font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+  tr.hidden { display: none; }
+</style>
+</head>
+<body>
+  <h1>Attack Surface Decay Report</h1>
+  <div class="subtitle">Generated 2026-10-31 15:34 UTC · 12 asset(s) scanned</div>
+
+  <div class="summary"><div class="card" style="border-top-color:#b91c1c">
+              <div class="card-count">3</div>
+              <div class="card-label">CRITICAL</div>
+            </div><div class="card" style="border-top-color:#c2410c">
+              <div class="card-count">3</div>
+              <div class="card-label">HIGH</div>
+            </div><div class="card" style="border-top-color:#a16207">
+              <div class="card-count">5</div>
+              <div class="card-label">MEDIUM</div>
+            </div><div class="card" style="border-top-color:#15803d">
+              <div class="card-count">1</div>
+              <div class="card-label">LOW</div>
+            </div></div>
+
+  <div class="controls">
+    <select id="bandFilter">
+      <option value="">All bands</option>
+      <option value="CRITICAL">CRITICAL</option>
+      <option value="HIGH">HIGH</option>
+      <option value="MEDIUM">MEDIUM</option>
+      <option value="LOW">LOW</option>
+    </select>
+    <input id="search" type="text" placeholder="Filter by identifier, region, owner...">
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Band</th><th>Score</th><th>Type</th><th>Identifier</th><th>Region</th>
+        <th>Reachability</th><th>Public</th><th>Owner</th><th>Why</th>
+      </tr>
+    </thead>
+    <tbody id="rows">
+      
+    <tr class="asset-row" data-band="CRITICAL" data-type="s3_bucket">
+      <td><span class="band" style="background:#b91c1c">CRITICAL</span></td>
+      <td>75</td>
+      <td>s3_bucket</td>
+      <td class="identifier">2021-product-launch-static-assets</td>
+      <td>us-east-1</td>
+      <td>responsive</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Actively responds to external probes (+30)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">Static website hosting enabled; ACL grants access to AllUsers</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="CRITICAL" data-type="s3_bucket">
+      <td><span class="band" style="background:#b91c1c">CRITICAL</span></td>
+      <td>75</td>
+      <td>s3_bucket</td>
+      <td class="identifier">hackathon-demo-uploads-bucket</td>
+      <td>us-east-1</td>
+      <td>responsive</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Actively responds to external probes (+30)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">ACL grants access to AllUsers</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="CRITICAL" data-type="s3_bucket">
+      <td><span class="band" style="background:#b91c1c">CRITICAL</span></td>
+      <td>75</td>
+      <td>s3_bucket</td>
+      <td class="identifier">2024-staging-leftover-bucket</td>
+      <td>us-east-1</td>
+      <td>responsive</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Actively responds to external probes (+30)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">ACL grants access to AllUsers</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="HIGH" data-type="elastic_ip">
+      <td><span class="band" style="background:#c2410c">HIGH</span></td>
+      <td>50</td>
+      <td>elastic_ip</td>
+      <td class="identifier">127.21.85.159</td>
+      <td>us-east-1</td>
+      <td>unreachable</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Does not currently resolve/respond (+5)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">Allocated but NOT associated with any resource - pure cost/stale-DNS risk</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="HIGH" data-type="elastic_ip">
+      <td><span class="band" style="background:#c2410c">HIGH</span></td>
+      <td>50</td>
+      <td>elastic_ip</td>
+      <td class="identifier">127.44.214.245</td>
+      <td>us-east-1</td>
+      <td>unreachable</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Does not currently resolve/respond (+5)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">Allocated but NOT associated with any resource - pure cost/stale-DNS risk</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="HIGH" data-type="elastic_ip">
+      <td><span class="band" style="background:#c2410c">HIGH</span></td>
+      <td>50</td>
+      <td>elastic_ip</td>
+      <td class="identifier">127.90.197.10</td>
+      <td>us-east-1</td>
+      <td>unreachable</td>
+      <td>Yes</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>4 factor(s)</summary>
+          <ul class="factors"><li>Does not currently resolve/respond (+5)</li><li>Publicly accessible (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">Allocated but NOT associated with any resource - pure cost/stale-DNS risk</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="MEDIUM" data-type="s3_bucket">
+      <td><span class="band" style="background:#a16207">MEDIUM</span></td>
+      <td>45</td>
+      <td>s3_bucket</td>
+      <td class="identifier">internal-backups-untagged</td>
+      <td>us-east-1</td>
+      <td>unknown</td>
+      <td>No</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>3 factor(s)</summary>
+          <ul class="factors"><li>Reachability unknown/untested (+15)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">No public access detected</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="MEDIUM" data-type="ec2_instance">
+      <td><span class="band" style="background:#a16207">MEDIUM</span></td>
+      <td>35</td>
+      <td>ec2_instance</td>
+      <td class="identifier">i-e260ab22702c717c0</td>
+      <td>us-east-1</td>
+      <td>unreachable</td>
+      <td>No</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>3 factor(s)</summary>
+          <ul class="factors"><li>Does not currently resolve/respond (+5)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">State: stopped; Stopped (not terminated) - classic orphan pattern</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="MEDIUM" data-type="ec2_instance">
+      <td><span class="band" style="background:#a16207">MEDIUM</span></td>
+      <td>35</td>
+      <td>ec2_instance</td>
+      <td class="identifier">i-b2799530373d11005</td>
+      <td>us-east-1</td>
+      <td>responsive_error</td>
+      <td>No</td>
+      <td>platform-team</td>
+      <td>
+        <details>
+          <summary>1 factor(s)</summary>
+          <ul class="factors"><li>Resolves/responds but errors - possible dangling reference or takeover risk (+35)</li></ul>
+          <div class="probe-detail">State: running; Public IP 54.214.152.62</div>
+          <div class="tags">Tags: Owner=platform-team, Project=api-gateway</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="MEDIUM" data-type="ec2_instance">
+      <td><span class="band" style="background:#a16207">MEDIUM</span></td>
+      <td>35</td>
+      <td>ec2_instance</td>
+      <td class="identifier">i-3fbc51a127c82ce7f</td>
+      <td>us-east-1</td>
+      <td>unreachable</td>
+      <td>No</td>
+      <td>—</td>
+      <td>
+        <details>
+          <summary>3 factor(s)</summary>
+          <ul class="factors"><li>Does not currently resolve/respond (+5)</li><li>No activity history available (+15)</li><li>No owner or project tag (+15)</li></ul>
+          <div class="probe-detail">State: stopped; Stopped (not terminated) - classic orphan pattern</div>
+          <div class="tags">Tags: —</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="MEDIUM" data-type="ec2_instance">
+      <td><span class="band" style="background:#a16207">MEDIUM</span></td>
+      <td>35</td>
+      <td>ec2_instance</td>
+      <td class="identifier">i-3e5c7f9353fc2d875</td>
+      <td>us-east-1</td>
+      <td>responsive_error</td>
+      <td>No</td>
+      <td>platform-team</td>
+      <td>
+        <details>
+          <summary>1 factor(s)</summary>
+          <ul class="factors"><li>Resolves/responds but errors - possible dangling reference or takeover risk (+35)</li></ul>
+          <div class="probe-detail">State: running; Public IP 54.214.76.137</div>
+          <div class="tags">Tags: Owner=platform-team, Project=api-gateway</div>
+        </details>
+      </td>
+    </tr>
+
+    <tr class="asset-row" data-band="LOW" data-type="s3_bucket">
+      <td><span class="band" style="background:#15803d">LOW</span></td>
+      <td>15</td>
+      <td>s3_bucket</td>
+      <td class="identifier">prod-payments-ledger</td>
+      <td>us-east-1</td>
+      <td>unknown</td>
+      <td>No</td>
+      <td>payments-team</td>
+      <td>
+        <details>
+          <summary>1 factor(s)</summary>
+          <ul class="factors"><li>Reachability unknown/untested (+15)</li></ul>
+          <div class="probe-detail">No public access detected</div>
+          <div class="tags">Tags: Owner=payments-team, Project=payments</div>
+        </details>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+<script>
+  const bandFilter = document.getElementById('bandFilter');
+  const search = document.getElementById('search');
+  function applyFilters() {
+    const band = bandFilter.value;
+    const q = search.value.toLowerCase();
+    document.querySelectorAll('.asset-row').forEach(row => {
+      const matchesBand = !band || row.dataset.band === band;
+      const matchesSearch = !q || row.textContent.toLowerCase().includes(q);
+      row.classList.toggle('hidden', !(matchesBand && matchesSearch));
+    });
+  }
+  bandFilter.addEventListener('change', applyFilters);
+  search.addEventListener('input', applyFilters);
+</script>
+</body>
+</html>
