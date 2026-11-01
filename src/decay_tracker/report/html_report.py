@@ -25,6 +25,34 @@ def _esc(s) -> str:
     return html.escape(str(s)) if s is not None else ""
 
 
+def _likely_owner(asset: Asset) -> str:
+    tags = asset.tags or {}
+    return (
+        asset.owner_tag or tags.get("Owner") or tags.get("owner")
+        or tags.get("owner_email") or tags.get("Team") or tags.get("team") or "Unknown"
+    )
+
+
+def _suggested_fix(asset: Asset) -> str:
+    """Display a suggestion only; this report never performs AWS changes."""
+    if asset.decay_band not in {"HIGH", "CRITICAL"}:
+        return "Monitor — below HIGH threshold"
+    resource_type = getattr(asset.asset_type, "value", str(asset.asset_type))
+    raw = asset.raw or {}
+    if resource_type == "s3_bucket":
+        suggestions = []
+        if asset.publicly_accessible:
+            suggestions.append("Enable S3 Block Public Access")
+        if raw.get("website_enabled") is True:
+            suggestions.append("Disable static website hosting")
+        return " + ".join(suggestions) if suggestions else "Manual review; confirm owner and lifecycle"
+    if resource_type == "elastic_ip":
+        if raw.get("associated") is False and raw.get("allocation_id"):
+            return "Verify DNS dependencies, then release unassociated Elastic IP (irreversible)"
+        return "Manual review; association/ownership is not confirmed"
+    return "Manual review; no automatic action is configured"
+
+
 def _asset_row(asset: Asset) -> str:
     color = BAND_COLOR.get(asset.decay_band or "LOW", "#374151")
     factors_html = "".join(f"<li>{_esc(f)}</li>" for f in asset.risk_factors)
@@ -38,7 +66,8 @@ def _asset_row(asset: Asset) -> str:
       <td>{_esc(asset.region or '—')}</td>
       <td>{_esc(asset.reachability.value)}</td>
       <td>{'Yes' if asset.publicly_accessible else 'No'}</td>
-      <td>{_esc(asset.owner_tag or '—')}</td>
+      <td>{_esc(_likely_owner(asset))}</td>
+      <td>{_esc(_suggested_fix(asset))}</td>
       <td>
         <details>
           <summary>{len(asset.risk_factors)} factor(s)</summary>
@@ -135,7 +164,7 @@ def generate_html_report(assets: list[Asset], output_path: str = "decay_report.h
     <thead>
       <tr>
         <th>Band</th><th>Score</th><th>Type</th><th>Identifier</th><th>Region</th>
-        <th>Reachability</th><th>Public</th><th>Owner</th><th>Why</th>
+        <th>Reachability</th><th>Public</th><th>Likely owner</th><th>Suggested fix</th><th>Why</th>
       </tr>
     </thead>
     <tbody id="rows">

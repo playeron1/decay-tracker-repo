@@ -57,6 +57,13 @@ decay-tracker scan --profile myprofile --all-regions --fail-on-critical
 
 # Compare the two most recent scans
 decay-tracker diff
+
+# Generate a conservative remediation plan from a scan JSON file
+decay-tracker scan --profile myprofile --region us-east-1 --json scan.json
+decay-tracker remediate --from-json scan.json
+
+# Execute AWS changes only after reviewing the plan
+decay-tracker remediate --from-json scan.json --execute --yes
 ```
 
 Each run writes:
@@ -88,11 +95,48 @@ them for your environment rather than editing the logic inline.
 
 ## IAM permissions
 
-The tool is read-only by design — see [`iam/decay-tracker-readonly-policy.json`](iam/decay-tracker-readonly-policy.json)
-for the exact least-privilege policy. A tool meant to reduce attack surface
-shouldn't expand it, so there is intentionally no write/delete capability
-anywhere in this codebase — remediation (deleting/quarantining a zombie
-asset) is a deliberate human action outside this tool's scope.
+Scanning remains read-only by default. The optional remediation workflow is
+separate and requires an explicit --execute --yes pair before any AWS write.
+The read-only scanner policy remains in
+[iam/decay-tracker-readonly-policy.json](iam/decay-tracker-readonly-policy.json).
+For opt-in changes, see the separate
+[iam/decay-tracker-remediation-policy.example.json](iam/decay-tracker-remediation-policy.example.json);
+do not attach write permissions to routine scan identities.
+
+## Remediation workflow
+
+Remediation consumes a scan JSON file (either the asset list emitted by
+--json or a scan-history snapshot) and plans changes only for HIGH and
+CRITICAL assets. It emits a JSON plan, a Markdown review, a standalone
+remediate.py runner and a dry-run result. The runner and CLI both default
+to dry-run; actual AWS mutations require both --execute and --yes.
+
+Current automatic actions are deliberately narrow:
+
+- Public S3 buckets: enable all four bucket-level Block Public Access controls.
+  The previous configuration is stored in an undo record.
+- S3 static websites: remove the website configuration after capturing it;
+  the configuration can be restored from the undo record.
+- Unassociated Elastic IPs: re-check the allocation immediately before release.
+  Releasing an address is irreversible in practice; AWS may allocate it to
+  another customer, so it is never described as reversible.
+- EC2 instances, load balancers, DNS records, uncertain EIPs and other
+  unsupported cases: manual review only. The planner does not stop or terminate
+  instances, delete load balancers, or alter DNS.
+
+Owner resolution checks common owner/team tags first, then searches CloudTrail
+creation management events for S3 buckets, EC2 instances and Elastic IPs.
+A missing match is reported as Unknown; no owner is guessed. CloudTrail lookup
+is read-only and can be disabled with --no-cloudtrail-lookup. Before live
+execution, the CLI and generated runner verify that the active STS account
+matches the single account ID recorded in the scan. Missing or multi-account
+scan identities are refused for live execution.
+
+The generated plan is a proposal, not proof that an asset is abandoned.
+Review business dependencies, DNS references, data classification and owner
+approval before running it. If an execution partially succeeds, reversible
+undo records are written to remediation_undo.json; they are not applied
+automatically.
 
 ## Running scans on a schedule
 

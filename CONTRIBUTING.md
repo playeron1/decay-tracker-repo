@@ -43,7 +43,8 @@ needed to contribute or review.
 
 ## Non-goals
 
-- No write/delete AWS actions. This tool stays read-only; remediation is
-  a human decision made outside it.
+- No implicit AWS mutations. Scanning and planning are read-only by default;
+  every new opt-in remediation action must document API calls, preconditions,
+  reversibility and undo behavior, and have mocked-AWS tests.
 - No credential storage of any kind in the repo. The scheduled-scan
   workflow uses GitHub OIDC specifically to avoid long-lived keys.

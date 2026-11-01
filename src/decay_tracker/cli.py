@@ -16,6 +16,9 @@ from pathlib import Path
 
 from decay_tracker.aws_session import all_regions, get_account_id, get_session
 from decay_tracker.models import Asset
+from decay_tracker.remediation import output as remediation_output
+from decay_tracker.remediation.executor import execute_plan
+from decay_tracker.remediation.planner import plan_remediation
 from decay_tracker.report.html_report import generate_html_report
 from decay_tracker.scanners.dns_scanner import DnsScanner
 from decay_tracker.scanners.ec2_scanner import Ec2Scanner
@@ -152,6 +155,86 @@ def cmd_diff(args) -> int:
     return 0
 
 
+def _load_remediation_assets(path: str) -> list[dict]:
+    """Load a scan JSON list or a ScanHistory snapshot."""
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    if isinstance(payload, dict):
+        payload = payload.get("assets")
+    if not isinstance(payload, list):
+        raise ValueError("Scan JSON must be an asset list or an object containing an 'assets' list.")
+    return payload
+
+
+def cmd_remediate(args) -> int:
+    """Create a conservative plan; AWS writes require both explicit flags."""
+    if args.execute and not args.yes:
+        print("Refusing to execute: pass both --execute and --yes.", file=sys.stderr)
+        return 2
+    if args.yes and not args.execute:
+        print("--yes is only valid together with --execute.", file=sys.stderr)
+        return 2
+    try:
+        assets = _load_remediation_assets(args.from_json)
+    except (OSError, json.JSONDecodeError, ValueError) as error:
+        print(f"Could not load scan JSON: {error}", file=sys.stderr)
+        return 1
+    if not assets:
+        print("The scan file contains no assets.", file=sys.stderr)
+        return 1
+
+    session = None
+    cloudtrail_factory = None
+    if args.execute or not args.no_cloudtrail_lookup:
+        session = get_session(profile=args.profile, region=args.region)
+        if not args.no_cloudtrail_lookup:
+            def cloudtrail_factory(region):
+                return session.client(
+                    "cloudtrail",
+                    region_name=region or args.region or session.region_name or "us-east-1",
+                )
+
+    plan = plan_remediation(assets, cloudtrail_client=cloudtrail_factory)
+    remediation_output.write_json(plan, args.output_json)
+    remediation_output.write_markdown(plan, args.output_md)
+    remediation_output.write_python_script(plan, args.output_script)
+
+    print(remediation_output.render_markdown(plan))
+    print(f"Plan JSON: {args.output_json}")
+    print(f"Plan Markdown: {args.output_md}")
+    print(f"Runnable script: {args.output_script}")
+    if args.execute:
+        planned_accounts = [str(value) for value in plan.get("account_ids", []) if value]
+        if len(planned_accounts) != 1:
+            print(
+                "Refusing live execution: the scan must contain exactly one recorded AWS account ID.",
+                file=sys.stderr,
+            )
+            return 4
+        actual_account_id = get_account_id(session)
+        if not actual_account_id or actual_account_id != planned_accounts[0]:
+            print(
+                "Refusing live execution: the active AWS credentials do not match the scan account "
+                f"(scan={planned_accounts[0]}, active={actual_account_id or 'unavailable'}).",
+                file=sys.stderr,
+            )
+            return 4
+        print(
+            "\nEXPLICIT AWS MODIFICATION MODE: --execute --yes supplied and the AWS account matches. "
+            "Review the plan and irreversible actions before running."
+        )
+        print(f"Verified AWS account: {actual_account_id}")
+
+    result = execute_plan(plan, session=session, execute=args.execute)
+    remediation_output.write_json(result, args.results_json)
+    print("\nExecution preview/result:")
+    print(json.dumps(result, indent=2, default=str))
+    if args.execute and result.get("undo_records"):
+        remediation_output.write_json(result["undo_records"], args.undo_file)
+        print(f"Reversible-action undo records: {args.undo_file}")
+    print(f"Execution result JSON: {args.results_json}")
+    return 3 if not result.get("success", True) else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="decay-tracker", description="Attack-surface decay tracker for abandoned cloud resources")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -178,6 +261,25 @@ def build_parser() -> argparse.ArgumentParser:
     diff = sub.add_parser("diff", help="Diff the two most recent scan runs")
     diff.add_argument("--history-dir", default=".decay_tracker/history")
     diff.set_defaults(func=cmd_diff)
+
+    remediate = sub.add_parser(
+        "remediate",
+        help="Plan safe fixes for HIGH/CRITICAL assets; execution is always opt-in",
+    )
+    remediate.add_argument("--from-json", required=True, help="Scan JSON file (asset list or history snapshot)")
+    remediate.add_argument("--profile", help="AWS profile name used for CloudTrail lookup and explicit execution")
+    remediate.add_argument("--region", help="Default AWS region")
+    remediate.add_argument("--no-cloudtrail-lookup", action="store_true", help="Use tags only for owner resolution")
+    mode = remediate.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="Preview only; this is the default")
+    mode.add_argument("--execute", action="store_true", help="Perform AWS changes; requires --yes as well")
+    remediate.add_argument("--yes", action="store_true", help="Confirm the AWS changes when used with --execute")
+    remediate.add_argument("--output-json", default="remediation_plan.json", help="Write the generated plan as JSON")
+    remediate.add_argument("--output-md", default="remediation_plan.md", help="Write the generated plan as Markdown")
+    remediate.add_argument("--output-script", default="remediate.py", help="Write a standalone dry-run-by-default Python runner")
+    remediate.add_argument("--results-json", default="remediation_result.json", help="Write the dry-run or execution results")
+    remediate.add_argument("--undo-file", default="remediation_undo.json", help="Write undo records for successful reversible changes")
+    remediate.set_defaults(func=cmd_remediate)
 
     return parser
 
