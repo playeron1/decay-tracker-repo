@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "S3BucketPublicAccessAndWebsiteRemediation",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketPublicAccessBlock",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:GetBucketWebsite",
+        "s3:DeleteBucketWebsite",
+        "s3:PutBucketWebsite"
+      ],
+      "Resource": "arn:aws:s3:::*"
+    },
+    {
+      "Sid": "InspectElasticIPAllocations",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeAddresses"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReleaseApprovedElasticIPAllocations",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:ReleaseAddress"
+      ],
+      "Resource": "arn:aws:ec2:*:*:elastic-ip/*"
+    },
+    {
+      "Sid": "ResolveLikelyOwnersFromCloudTrail",
+      "Effect": "Allow",
+      "Action": [
+        "cloudtrail:LookupEvents"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
