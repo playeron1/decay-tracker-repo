@@ -7,6 +7,7 @@ import pytest
 from botocore.exceptions import ClientError
 from moto import mock_aws
 
+from decay_tracker import cli
 from decay_tracker.remediation.actions import (
     DisableS3StaticWebsite,
     QuarantinePublicS3Bucket,
@@ -241,3 +242,67 @@ def test_unowned_resources_are_not_assigned_a_guessed_owner():
     owner = resolve_owner(_asset("s3_bucket", "unowned-bucket"))
     assert owner["owner"] is None
     assert owner["source"] == "unresolved"
+
+
+
+def test_cli_refuses_live_execution_when_active_account_differs_from_scan(tmp_path, monkeypatch):
+    scan_path = tmp_path / "scan.json"
+    scan_path.write_text(
+        json.dumps([
+            _asset(
+                "s3_bucket",
+                "public-bucket",
+                publicly_accessible=True,
+                account_id="111122223333",
+            )
+        ]),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cli, "get_session", lambda profile=None, region=None: object())
+    monkeypatch.setattr(cli, "get_account_id", lambda session: "999900001111")
+    monkeypatch.setattr(
+        cli,
+        "execute_plan",
+        lambda *args, **kwargs: pytest.fail("A cross-account plan must never execute"),
+    )
+    args = cli.build_parser().parse_args([
+        "remediate",
+        "--from-json", str(scan_path),
+        "--no-cloudtrail-lookup",
+        "--execute",
+        "--yes",
+        "--output-json", str(tmp_path / "plan.json"),
+        "--output-md", str(tmp_path / "plan.md"),
+        "--output-script", str(tmp_path / "runner.py"),
+        "--results-json", str(tmp_path / "result.json"),
+    ])
+
+    assert args.func(args) == 4
+
+
+def test_cli_refuses_live_execution_when_scan_has_no_account_id(tmp_path, monkeypatch):
+    scan_path = tmp_path / "scan.json"
+    scan_path.write_text(
+        json.dumps([_asset("s3_bucket", "public-bucket", publicly_accessible=True, account_id=None)]),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cli, "get_session", lambda profile=None, region=None: object())
+    monkeypatch.setattr(cli, "get_account_id", lambda session: "111122223333")
+    monkeypatch.setattr(
+        cli,
+        "execute_plan",
+        lambda *args, **kwargs: pytest.fail("A plan without its source account must never execute"),
+    )
+    args = cli.build_parser().parse_args([
+        "remediate",
+        "--from-json", str(scan_path),
+        "--no-cloudtrail-lookup",
+        "--execute",
+        "--yes",
+        "--output-json", str(tmp_path / "plan.json"),
+        "--output-md", str(tmp_path / "plan.md"),
+        "--output-script", str(tmp_path / "runner.py"),
+        "--results-json", str(tmp_path / "result.json"),
+    ])
+
+    assert args.func(args) == 4

@@ -86,7 +86,7 @@ import base64
 import json
 from pathlib import Path
 
-from decay_tracker.aws_session import get_session
+from decay_tracker.aws_session import get_account_id, get_session
 from decay_tracker.remediation.executor import execute_plan
 
 PLAN = json.loads(base64.b64decode("{payload}").decode("utf-8"))
@@ -105,6 +105,13 @@ def main():
     if args.yes and not args.execute:
         parser.error("--yes is only valid together with --execute")
     session = get_session(profile=args.profile, region=args.region) if args.execute else None
+    if args.execute:
+        planned_accounts = [str(value) for value in PLAN.get("account_ids", []) if value]
+        if len(planned_accounts) != 1:
+            parser.error("live execution requires exactly one recorded scan account ID")
+        actual_account_id = get_account_id(session)
+        if not actual_account_id or actual_account_id != planned_accounts[0]:
+            parser.error("active AWS account does not match the scan account; refusing to execute")
     result = execute_plan(PLAN, session, execute=args.execute)
     print(json.dumps(result, indent=2, default=str))
     if result.get("undo_records"):

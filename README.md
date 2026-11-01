@@ -127,7 +127,10 @@ Current automatic actions are deliberately narrow:
 Owner resolution checks common owner/team tags first, then searches CloudTrail
 creation management events for S3 buckets, EC2 instances and Elastic IPs.
 A missing match is reported as Unknown; no owner is guessed. CloudTrail lookup
-is read-only and can be disabled with --no-cloudtrail-lookup.
+is read-only and can be disabled with --no-cloudtrail-lookup. Before live
+execution, the CLI and generated runner verify that the active STS account
+matches the single account ID recorded in the scan. Missing or multi-account
+scan identities are refused for live execution.
 
 The generated plan is a proposal, not proof that an asset is abandoned.
 Review business dependencies, DNS references, data classification and owner

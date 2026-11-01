@@ -203,11 +203,26 @@ def cmd_remediate(args) -> int:
     print(f"Plan Markdown: {args.output_md}")
     print(f"Runnable script: {args.output_script}")
     if args.execute:
+        planned_accounts = [str(value) for value in plan.get("account_ids", []) if value]
+        if len(planned_accounts) != 1:
+            print(
+                "Refusing live execution: the scan must contain exactly one recorded AWS account ID.",
+                file=sys.stderr,
+            )
+            return 4
+        actual_account_id = get_account_id(session)
+        if not actual_account_id or actual_account_id != planned_accounts[0]:
+            print(
+                "Refusing live execution: the active AWS credentials do not match the scan account "
+                f"(scan={planned_accounts[0]}, active={actual_account_id or 'unavailable'}).",
+                file=sys.stderr,
+            )
+            return 4
         print(
-            "\nEXPLICIT AWS MODIFICATION MODE: --execute --yes supplied. "
-            "Review the target account, plan and irreversible actions before running."
+            "\nEXPLICIT AWS MODIFICATION MODE: --execute --yes supplied and the AWS account matches. "
+            "Review the plan and irreversible actions before running."
         )
-        print(f"Account(s) in scan: {', '.join(plan.get('account_ids') or []) or 'not recorded'}")
+        print(f"Verified AWS account: {actual_account_id}")
 
     result = execute_plan(plan, session=session, execute=args.execute)
     remediation_output.write_json(result, args.results_json)
