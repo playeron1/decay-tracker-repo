@@ -16,6 +16,9 @@ from pathlib import Path
 
 from decay_tracker.aws_session import all_regions, get_account_id, get_session
 from decay_tracker.models import Asset
+from decay_tracker.remediation import output as remediation_output
+from decay_tracker.remediation.executor import execute_plan
+from decay_tracker.remediation.planner import plan_remediation
 from decay_tracker.report.html_report import generate_html_report
 from decay_tracker.scanners.dns_scanner import DnsScanner
 from decay_tracker.scanners.ec2_scanner import Ec2Scanner
@@ -24,14 +27,6 @@ from decay_tracker.scanners.route53_scanner import Route53Scanner
 from decay_tracker.scanners.s3_scanner import S3Scanner
 from decay_tracker.scoring.engine import score_assets
 from decay_tracker.storage.history import ScanHistory
-from decay_tracker.remediation.executor import execute_plan
-from decay_tracker.remediation.output import (
-    render_markdown,
-    write_json as write_remediation_json,
-    write_markdown,
-    write_python_script,
-)
-from decay_tracker.remediation.planner import plan_remediation
 
 
 def _run_scan(args) -> list[Asset]:
@@ -192,17 +187,18 @@ def cmd_remediate(args) -> int:
     if args.execute or not args.no_cloudtrail_lookup:
         session = get_session(profile=args.profile, region=args.region)
         if not args.no_cloudtrail_lookup:
-            cloudtrail_factory = lambda region: session.client(
-                "cloudtrail",
-                region_name=region or args.region or session.region_name or "us-east-1",
-            )
+            def cloudtrail_factory(region):
+                return session.client(
+                    "cloudtrail",
+                    region_name=region or args.region or session.region_name or "us-east-1",
+                )
 
     plan = plan_remediation(assets, cloudtrail_client=cloudtrail_factory)
-    write_remediation_json(plan, args.output_json)
-    write_markdown(plan, args.output_md)
-    write_python_script(plan, args.output_script)
+    remediation_output.write_json(plan, args.output_json)
+    remediation_output.write_markdown(plan, args.output_md)
+    remediation_output.write_python_script(plan, args.output_script)
 
-    print(render_markdown(plan))
+    print(remediation_output.render_markdown(plan))
     print(f"Plan JSON: {args.output_json}")
     print(f"Plan Markdown: {args.output_md}")
     print(f"Runnable script: {args.output_script}")
@@ -214,11 +210,11 @@ def cmd_remediate(args) -> int:
         print(f"Account(s) in scan: {', '.join(plan.get('account_ids') or []) or 'not recorded'}")
 
     result = execute_plan(plan, session=session, execute=args.execute)
-    write_remediation_json(result, args.results_json)
+    remediation_output.write_json(result, args.results_json)
     print("\nExecution preview/result:")
     print(json.dumps(result, indent=2, default=str))
     if args.execute and result.get("undo_records"):
-        write_remediation_json(result["undo_records"], args.undo_file)
+        remediation_output.write_json(result["undo_records"], args.undo_file)
         print(f"Reversible-action undo records: {args.undo_file}")
     print(f"Execution result JSON: {args.results_json}")
     return 3 if not result.get("success", True) else 0
@@ -259,7 +255,9 @@ def build_parser() -> argparse.ArgumentParser:
     remediate.add_argument("--profile", help="AWS profile name used for CloudTrail lookup and explicit execution")
     remediate.add_argument("--region", help="Default AWS region")
     remediate.add_argument("--no-cloudtrail-lookup", action="store_true", help="Use tags only for owner resolution")
-    remediate.add_argument("--execute", action="store_true", help="Perform AWS changes; requires --yes as well")
+    mode = remediate.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="Preview only; this is the default")
+    mode.add_argument("--execute", action="store_true", help="Perform AWS changes; requires --yes as well")
     remediate.add_argument("--yes", action="store_true", help="Confirm the AWS changes when used with --execute")
     remediate.add_argument("--output-json", default="remediation_plan.json", help="Write the generated plan as JSON")
     remediate.add_argument("--output-md", default="remediation_plan.md", help="Write the generated plan as Markdown")

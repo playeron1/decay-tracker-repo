@@ -5,7 +5,6 @@ import sys
 import boto3
 import pytest
 from botocore.exceptions import ClientError
-from moto import mock_aws
 
 from decay_tracker.remediation.actions import (
     DisableS3StaticWebsite,
@@ -17,6 +16,8 @@ from decay_tracker.remediation.executor import execute_plan
 from decay_tracker.remediation.output import render_python_script
 from decay_tracker.remediation.owner_resolution import resolve_owner
 from decay_tracker.remediation.planner import plan_remediation
+
+from moto import mock_aws
 
 
 def _asset(asset_type, identifier, **overrides):
