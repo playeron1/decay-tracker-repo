@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Scan and generated report artifacts
+.decay_tracker/
+decay_report.html
+remediation_plan.json
+remediation_plan.md
+remediate.py
+remediation_result.json
+remediation_undo.json

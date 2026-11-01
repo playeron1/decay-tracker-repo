@@ -113,7 +113,9 @@ class Ec2Scanner(Scanner):
         for addr in resp.get("Addresses", []):
             tags = {t["Key"]: t["Value"] for t in addr.get("Tags", [])}
             instance_id = addr.get("InstanceId")
-            associated = bool(instance_id)
+            network_interface_id = addr.get("NetworkInterfaceId")
+            associated = bool(addr.get("AssociationId") or instance_id or network_interface_id)
+            association_target = instance_id or network_interface_id or "another network interface"
 
             asset = Asset(
                 asset_type=AssetType.ELASTIC_IP,
@@ -125,11 +127,18 @@ class Ec2Scanner(Scanner):
                 tags=tags,
                 reachability=Reachability.UNKNOWN if associated else Reachability.UNREACHABLE,
                 probe_detail=(
-                    f"Associated with {instance_id}" if associated
+                    f"Associated with {association_target}" if associated
                     else "Allocated but NOT associated with any resource - pure cost/stale-DNS risk"
                 ),
                 publicly_accessible=True,
-                raw={"allocation_id": addr.get("AllocationId")},
+                raw={
+                    "allocation_id": addr.get("AllocationId"),
+                    "association_id": addr.get("AssociationId"),
+                    "instance_id": instance_id,
+                    "network_interface_id": network_interface_id,
+                    "public_ip": addr.get("PublicIp"),
+                    "associated": associated,
+                },
             )
             asset.add_evidence(
                 "ec2:describe_addresses",
